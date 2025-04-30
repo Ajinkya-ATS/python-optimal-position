@@ -1,0 +1,994 @@
+{
+    "ats_wms_master_position_details": {
+        "table_name": "ats_wms_master_position_details",
+        "columns": [
+            {
+                "name": "POSITION_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "RACK_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_DESC",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NUMBER_IN_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_IS_ALLOCATED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_MATERIAL_LOADED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_IS_EMPTY",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "CDATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_IS_ACTIVE",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_IS_DELETED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_MANUAL_DISPATCH",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_ALARM_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    },
+    "ats_wms_current_stock_details": {
+        "table_name": "ats_wms_current_stock_details",
+        "columns": [
+            {
+                "name": "CURRENT_STOCK_DETAILS_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "PALLET_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_INFORMATION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SERIAL_NUMBER",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AGEING_DAYS",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "QUANTITY",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "QUALITY_STATUS",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "BATCH_NUMBER",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MODEL_NUMBER",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "LOCATION",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "EXPIRY_DATE",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NUMBER_IN_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_SIDE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_COLUMN",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "LOAD_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_OUTFEED_MISSION_GENERATED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_INFEED_MISSION_GENERATED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "VENDOR_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PART_IDENTIFICATION_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_DATE",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_SHIFT",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "IS_ALARM_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    },
+    "ats_wms_infeed_mission_runtime_details": {
+        "table_name": "ats_wms_infeed_mission_runtime_details",
+        "columns": [
+            {
+                "name": "INFEED_MISSION_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "PALLET_INFORMATION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_CODE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIENT_CODE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "BATCH_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MODEL_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "QUANTITY",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_SIDE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_COLUMN",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NUMBER_IN_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_NUMBER",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "INFEED_MISSION_CDATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "INFEED_MISSION_START_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "INFEED_MISSION_END_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "INFEED_MISSION_STATUS",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "INFEED_MISSION_IS_DELETED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "WMS_TRANSFER_ORDER_ID",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FILLED_PERCENTAGE",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "LOAD_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SERIAL_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "VENDOR_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PART_IDENTIFICATION_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_DATE",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_SHIFT",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    },
+    "ats_wms_outfeed_mission_runtime_details": {
+        "table_name": "ats_wms_outfeed_mission_runtime_details",
+        "columns": [
+            {
+                "name": "OUTFEED_MISSION_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "PALLET_INFORMATION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_CODE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PRODUCT_VARIANT_CODE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "BATCH_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MODEL_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "QUANTITY",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "LOCATION",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "AREA_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_SIDE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_COLUMN",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "POSITION_NUMBER_IN_RACK",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_NUMBER",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "STATION_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PALLET_STATUS_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "OUTFEED_MISSION_CDATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "OUTFEED_MISSION_START_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "OUTFEED_MISSION_END_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "OUTFEED_MISSION_STATUS",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "OUTFEED_MISSION_IS_DELETED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "ORDER_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "WMS_TRANSFER_ORDER_ID",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SHIFT_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FILLED_PERCENTAGE",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "SERIAL_NUMBER",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "VENDOR_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "PART_IDENTIFICATION_CODE",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_DATE",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "MFG_SHIFT",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "LOAD_DATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    },
+    "ats_wms_transfer_mission_runtime_details": {
+        "table_name": "ats_wms_transfer_mission_runtime_details",
+        "columns": []
+    },
+    "ats_wms_pallet_information": {
+        "table_name": "ats_wms_pallet_information",
+        "columns": []
+    },
+    "ats_wms_master_floor_details": {
+        "table_name": "ats_wms_master_floor_details",
+        "columns": [
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "FLOOR_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_DESC",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_NAME",
+                "type": "varchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "CDATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_IS_ACTIVE",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_IS_DELETED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    },
+    "ats_wms_master_rack_details": {
+        "table_name": "ats_wms_master_rack_details",
+        "columns": [
+            {
+                "name": "RACK_ID",
+                "type": "int",
+                "nullable": "NO",
+                "default": null
+            },
+            {
+                "name": "AREA_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "FLOOR_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_NAME",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_DESC",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_NUMBER",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_COLUMN",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_SIDE",
+                "type": "nvarchar",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "CDATETIME",
+                "type": "datetime2",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "USER_ID",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_IS_ACTIVE",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            },
+            {
+                "name": "RACK_IS_DELETED",
+                "type": "int",
+                "nullable": "YES",
+                "default": null
+            }
+        ]
+    }
+}
