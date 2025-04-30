@@ -1,0 +1,36 @@
+-- Create the optimal position table
+CREATE TABLE ats_wms_optimal_position (
+    PRODUCT_VARIANT_CODE VARCHAR(50) NOT NULL,
+    POSITION_ID INT NOT NULL,
+    POSITION_NAME NVARCHAR(100),
+    RACK_ID INT,
+    RACK_NAME NVARCHAR(100),
+    FLOOR_ID INT,
+    FLOOR_NAME NVARCHAR(100),
+    AREA_ID INT,
+    AREA_NAME NVARCHAR(100),
+    CDATETIME DATETIME2,
+    USER_ID INT,
+    USER_NAME NVARCHAR(100),
+    IS_ACTIVE INT DEFAULT 1,
+    IS_DELETED INT DEFAULT 0,
+    
+    -- Add primary key constraint
+    CONSTRAINT PK_OPTIMAL_POSITION PRIMARY KEY (PRODUCT_VARIANT_CODE, POSITION_ID),
+    
+    -- Add foreign key constraints
+    CONSTRAINT FK_OPTIMAL_POSITION_POSITION FOREIGN KEY (POSITION_ID) 
+        REFERENCES ats_wms_master_position_details(POSITION_ID),
+    CONSTRAINT FK_OPTIMAL_POSITION_RACK FOREIGN KEY (RACK_ID) 
+        REFERENCES ats_wms_master_rack_details(RACK_ID),
+    CONSTRAINT FK_OPTIMAL_POSITION_FLOOR FOREIGN KEY (FLOOR_ID) 
+        REFERENCES ats_wms_master_floor_details(FLOOR_ID)
+);
+
+-- Create index on frequently queried columns
+CREATE INDEX IDX_OPTIMAL_POSITION_POSITION 
+    ON ats_wms_optimal_position(POSITION_ID);
+CREATE INDEX IDX_OPTIMAL_POSITION_RACK 
+    ON ats_wms_optimal_position(RACK_ID);
+CREATE INDEX IDX_OPTIMAL_POSITION_FLOOR 
+    ON ats_wms_optimal_position(FLOOR_ID); 

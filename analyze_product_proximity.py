@@ -5,6 +5,7 @@ import json
 import sys
 import subprocess
 import os
+from datetime import datetime
 
 # Database credentials
 server = 'ATSINDIA3D39\\SQLEXPRESS'
@@ -97,6 +98,35 @@ def calculate_proximity_score(empty_pos, product_positions, db_connection):
         front_positions_blocked = cursor.fetchone()[0]
         if front_positions_blocked > 0:
             return 0  # Skip if front positions are blocked
+        
+        # 7. Alarm Rack Check
+        cursor.execute("""
+            SELECT IS_ALARM_RACK FROM ats_wms_master_position_details 
+            WHERE POSITION_ID = ?
+        """, (empty_pos['POSITION_ID'],))
+        is_alarm_rack = cursor.fetchone()[0]
+        if is_alarm_rack == 1:
+            return 0  # Skip if it's an alarm rack
+        
+        # 8. Quality Status Check
+        if 'QUALITY_STATUS' in empty_pos and pd.notna(empty_pos['QUALITY_STATUS']):
+            cursor.execute("""
+                SELECT COUNT(*) FROM ats_wms_current_stock_details 
+                WHERE POSITION_ID = ? AND QUALITY_STATUS = ?
+            """, (empty_pos['POSITION_ID'], empty_pos['QUALITY_STATUS']))
+            quality_matches = cursor.fetchone()[0]
+            if quality_matches == 0:
+                return 0  # Skip if quality status doesn't match
+        
+        # 9. Product Variant Compatibility Check
+        if 'PRODUCT_VARIANT_CODE' in empty_pos and pd.notna(empty_pos['PRODUCT_VARIANT_CODE']):
+            cursor.execute("""
+                SELECT COUNT(*) FROM ats_wms_current_stock_details 
+                WHERE POSITION_ID = ? AND PRODUCT_VARIANT_CODE = ?
+            """, (empty_pos['POSITION_ID'], empty_pos['PRODUCT_VARIANT_CODE']))
+            variant_matches = cursor.fetchone()[0]
+            if variant_matches == 0:
+                return 0  # Skip if product variant doesn't match
         
         # Calculate base distance score
         empty_coords = np.array([
@@ -271,7 +301,7 @@ def find_optimal_positions():
             AND cs.PRODUCT_NAME IS NOT NULL
         """
         
-        # Query to get empty positions
+        # Query to get empty positions with area and floor details
         empty_positions_query = """
         SELECT 
             mp.POSITION_ID,
@@ -282,16 +312,34 @@ def find_optimal_positions():
             mp.FLOOR_ID,
             mp.POSITION_IS_EMPTY,
             mp.POSITION_IS_ALLOCATED,
+            mp.POSITION_IS_ACTIVE,
+            mp.IS_MATERIAL_LOADED,
+            mp.IS_MANUAL_DISPATCH,
+            mp.POSITION_IS_DELETED,
             cs.PRODUCT_VARIANT_CODE,
-            cs.QUALITY_STATUS
+            cs.QUALITY_STATUS,
+            ma.AREA_NAME,
+            mf.FLOOR_NAME
         FROM 
             ats_wms_master_position_details mp
             LEFT JOIN ats_wms_current_stock_details cs ON mp.POSITION_ID = cs.POSITION_ID
+            LEFT JOIN ats_wms_master_area_details ma ON mp.AREA_ID = ma.AREA_ID
+            LEFT JOIN ats_wms_master_floor_details mf ON mp.FLOOR_ID = mf.FLOOR_ID
         WHERE 
             mp.POSITION_IS_ACTIVE = 1
             AND mp.POSITION_IS_DELETED = 0
-            AND mp.POSITION_IS_EMPTY = 1
-            AND mp.POSITION_IS_ALLOCATED = 0
+            AND (
+                -- Regular empty positions (not allocated and empty)
+                (mp.POSITION_IS_ALLOCATED = 0 AND mp.POSITION_IS_EMPTY = 1)
+                OR
+                -- Dead cells (allocated, active, no material, empty, manual dispatch, not deleted)
+                (mp.POSITION_IS_ALLOCATED = 1 
+                 AND mp.POSITION_IS_ACTIVE = 1 
+                 AND mp.IS_MATERIAL_LOADED = 0 
+                 AND mp.POSITION_IS_EMPTY = 1 
+                 AND mp.IS_MANUAL_DISPATCH = 1 
+                 AND mp.POSITION_IS_DELETED = 0)
+            )
         """
         
         # Execute queries and convert to DataFrames
@@ -307,13 +355,30 @@ def find_optimal_positions():
             print("\nNo occupied positions found!")
             return
             
-        # Create a dictionary to store optimal positions for each product type
-        optimal_positions = {
-            "BEV": [],
-            "S230": []
-        }
+        # Calculate current product distribution
+        bev_count = len(occupied_df[occupied_df['PRODUCT_NAME'] == 'BEV'])
+        s230_count = len(occupied_df[occupied_df['PRODUCT_NAME'] == 'S230'])
+        total_products = bev_count + s230_count
+        
+        if total_products == 0:
+            print("\nNo BEV or S230 products found!")
+            return
+            
+        # Calculate target distribution ratios
+        bev_ratio = bev_count / total_products
+        s230_ratio = s230_count / total_products
+        
+        print(f"\nCurrent distribution:")
+        print(f"BEV: {bev_count} positions ({bev_ratio:.2%})")
+        print(f"S230: {s230_count} positions ({s230_ratio:.2%})")
+        
+        # Clear existing optimal positions
+        cursor.execute("DELETE FROM ats_wms_optimal_position")
+        conn.commit()
+        print("\nCleared existing optimal positions")
         
         # Calculate proximity scores for each empty position
+        position_scores = []
         for _, empty_pos in empty_df.iterrows():
             # Calculate score for BEV products
             bev_positions = occupied_df[occupied_df['PRODUCT_NAME'] == 'BEV']
@@ -323,60 +388,163 @@ def find_optimal_positions():
             s230_positions = occupied_df[occupied_df['PRODUCT_NAME'] == 'S230']
             s230_score = calculate_proximity_score(empty_pos, s230_positions, conn)
             
-            # Add position to optimal positions if it has a positive score
-            if bev_score > 0:
-                position_data = {
-                    "position_id": empty_pos['POSITION_ID'],
-                    "position_name": empty_pos['POSITION_NAME'],
-                    "rack_id": empty_pos['RACK_ID'],
-                    "area_id": empty_pos['AREA_ID'],
-                    "floor_id": empty_pos['FLOOR_ID'],
-                    "position_number": empty_pos['POSITION_NUMBER_IN_RACK'],
-                    "proximity_score": bev_score,
-                    "nearby_products": len(bev_positions)
-                }
-                optimal_positions["BEV"].append(position_data)
+            if bev_score > 0 or s230_score > 0:
+                position_scores.append({
+                    'position': empty_pos,
+                    'bev_score': bev_score,
+                    's230_score': s230_score,
+                    'area_id': empty_pos['AREA_ID'],
+                    'floor_id': empty_pos['FLOOR_ID']
+                })
+        
+        # Sort positions by area, floor, and then by combined score
+        position_scores.sort(key=lambda x: (
+            x['area_id'],  # Primary sort by area
+            x['floor_id'],  # Secondary sort by floor
+            -max(x['bev_score'], x['s230_score'])  # Tertiary sort by highest score (descending)
+        ))
+        
+        # Calculate target allocations
+        total_empty = len(position_scores)
+        target_bev = int(total_empty * bev_ratio)
+        target_s230 = int(total_empty * s230_ratio)
+        
+        print(f"\nTarget allocations:")
+        print(f"BEV: {target_bev} positions")
+        print(f"S230: {target_s230} positions")
+        
+        # Allocate positions based on scores and target ratios
+        bev_allocated = 0
+        s230_allocated = 0
+        
+        # Track current area and floor for logging
+        current_area = None
+        current_floor = None
+        
+        for score_data in position_scores:
+            empty_pos = score_data['position']
+            bev_score = score_data['bev_score']
+            s230_score = score_data['s230_score']
+            
+            # Log area and floor changes
+            if current_area != empty_pos['AREA_ID'] or current_floor != empty_pos['FLOOR_ID']:
+                current_area = empty_pos['AREA_ID']
+                current_floor = empty_pos['FLOOR_ID']
+                print(f"\nProcessing Area {empty_pos['AREA_NAME']}, Floor {empty_pos['FLOOR_NAME']}")
+            
+            # Get additional position details
+            cursor.execute("""
+                SELECT 
+                    mp.POSITION_NAME,
+                    mr.RACK_NAME,
+                    mf.FLOOR_NAME,
+                    ma.AREA_NAME
+                FROM 
+                    ats_wms_master_position_details mp
+                    LEFT JOIN ats_wms_master_rack_details mr ON mp.RACK_ID = mr.RACK_ID
+                    LEFT JOIN ats_wms_master_floor_details mf ON mp.FLOOR_ID = mf.FLOOR_ID
+                    LEFT JOIN ats_wms_master_area_details ma ON mp.AREA_ID = ma.AREA_ID
+                WHERE 
+                    mp.POSITION_ID = ?
+            """, (empty_pos['POSITION_ID'],))
+            
+            pos_details = cursor.fetchone()
+            
+            # Determine which product to allocate based on scores and target ratios
+            if bev_score > 0 and bev_allocated < target_bev and (bev_score >= s230_score or s230_allocated >= target_s230):
+                # Insert BEV position
+                insert_query = """
+                INSERT INTO ats_wms_optimal_position (
+                    PRODUCT_VARIANT_CODE,
+                    POSITION_ID,
+                    POSITION_NAME,
+                    RACK_ID,
+                    RACK_NAME,
+                    FLOOR_ID,
+                    FLOOR_NAME,
+                    AREA_ID,
+                    AREA_NAME,
+                    CDATETIME,
+                    USER_ID,
+                    USER_NAME,
+                    IS_ACTIVE,
+                    IS_DELETED
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """
                 
-            if s230_score > 0:
-                position_data = {
-                    "position_id": empty_pos['POSITION_ID'],
-                    "position_name": empty_pos['POSITION_NAME'],
-                    "rack_id": empty_pos['RACK_ID'],
-                    "area_id": empty_pos['AREA_ID'],
-                    "floor_id": empty_pos['FLOOR_ID'],
-                    "position_number": empty_pos['POSITION_NUMBER_IN_RACK'],
-                    "proximity_score": s230_score,
-                    "nearby_products": len(s230_positions)
-                }
-                optimal_positions["S230"].append(position_data)
+                cursor.execute(insert_query, 
+                             'BEV',
+                             empty_pos['POSITION_ID'],
+                             pos_details[0] if pos_details else None,
+                             empty_pos['RACK_ID'],
+                             pos_details[1] if pos_details else None,
+                             empty_pos['FLOOR_ID'],
+                             pos_details[2] if pos_details else None,
+                             empty_pos['AREA_ID'],
+                             pos_details[3] if pos_details else None,
+                             datetime.now(),
+                             1,
+                             'System',
+                             1,
+                             0
+                             )
+                bev_allocated += 1
+                print(f"  Allocated position {empty_pos['POSITION_NAME']} to BEV")
+                
+            elif s230_score > 0 and s230_allocated < target_s230 and (s230_score > bev_score or bev_allocated >= target_bev):
+                # Insert S230 position
+                insert_query = """
+                INSERT INTO ats_wms_optimal_position (
+                    PRODUCT_VARIANT_CODE,
+                    POSITION_ID,
+                    POSITION_NAME,
+                    RACK_ID,
+                    RACK_NAME,
+                    FLOOR_ID,
+                    FLOOR_NAME,
+                    AREA_ID,
+                    AREA_NAME,
+                    CDATETIME,
+                    USER_ID,
+                    USER_NAME,
+                    IS_ACTIVE,
+                    IS_DELETED
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                
+                cursor.execute(insert_query, 
+                             'S230',
+                             empty_pos['POSITION_ID'],
+                             pos_details[0] if pos_details else None,
+                             empty_pos['RACK_ID'],
+                             pos_details[1] if pos_details else None,
+                             empty_pos['FLOOR_ID'],
+                             pos_details[2] if pos_details else None,
+                             empty_pos['AREA_ID'],
+                             pos_details[3] if pos_details else None,
+                             datetime.now(),
+                             1,
+                             'System',
+                             1,
+                             0
+                             )
+                s230_allocated += 1
+                print(f"  Allocated position {empty_pos['POSITION_NAME']} to S230")
         
-        # Sort positions by score for each product type
-        for product_type in ['BEV', 'S230']:
-            optimal_positions[product_type].sort(key=lambda x: x['proximity_score'], reverse=True)
-        
-        # Save to JSON
-        output_data = {
-            "total_occupied_positions": len(occupied_df),
-            "total_empty_positions": len(empty_df),
-            "optimal_positions": optimal_positions
-        }
-        
-        with open('optimal_positions.json', 'w') as f:
-            json.dump(output_data, f, indent=4)
-        print(f"\nOptimal positions saved to 'optimal_positions.json'")
+        # Commit the changes
+        conn.commit()
+        print("\nAll optimal positions have been inserted successfully!")
         
         # Print summary
-        print("\nSummary of optimal positions found:")
-        for product_type in ['BEV', 'S230']:
-            print(f"\n{product_type}:")
-            product_positions = occupied_df[occupied_df['PRODUCT_NAME'] == product_type]
-            print(f"Total occupied positions: {len(product_positions)}")
-            print(f"Optimal empty positions: {len(optimal_positions[product_type])}")
-            if len(optimal_positions[product_type]) > 0:
-                print("\nTop 5 optimal positions:")
-                for pos in optimal_positions[product_type][:5]:
-                    print(f"Position: {pos['position_name']}, Score: {pos['proximity_score']:.4f}, "
-                          f"Nearby products: {pos['nearby_products']}")
+        cursor.execute("""
+            SELECT PRODUCT_VARIANT_CODE, COUNT(*) 
+            FROM ats_wms_optimal_position 
+            GROUP BY PRODUCT_VARIANT_CODE
+        """)
+        summary = cursor.fetchall()
+        print("\nSummary of optimal positions inserted:")
+        for product_type, count in summary:
+            print(f"{product_type}: {count} positions")
         
         # Close the connection
         cursor.close()
